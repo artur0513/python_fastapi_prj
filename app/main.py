@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.database import engine
 from sqlmodel import SQLModel
-from app.routers import auth, pickup_points
+from app.routers import auth, pickup_points, orders, users, courier
 
 
 @asynccontextmanager
@@ -20,3 +20,6 @@ app = FastAPI(
 
 app.include_router(auth.router)
 app.include_router(pickup_points.router)
+app.include_router(orders.router)
+app.include_router(users.router)
+app.include_router(courier.router)
