@@ -1,6 +1,19 @@
+from enum import Enum
 from typing import Optional, List, Literal
 from datetime import datetime
 from sqlmodel import SQLModel, Field, Relationship
+
+
+class RoleEnum(str, Enum):
+    MANAGER = "manager"
+    COURIER = "courier"
+
+
+class OrderStatusEnum(str, Enum):
+    NEW = "new"
+    IN_DELIVERY = "in_delivery"
+    DELIVERED = "delivered"
+
 
 class User(SQLModel, table=True):
     __tablename__ = "users"
@@ -9,7 +22,7 @@ class User(SQLModel, table=True):
     email: str = Field(unique=True, index=True)
     password_hash: str
     full_name: str
-    role: Literal["manager", "courier"] = Field(default="courier")
+    role: RoleEnum = Field(default=RoleEnum.COURIER)
 
     # координаты используются только для курьеров, для менеджеров могут быть None
     latitude: Optional[float] = None
@@ -38,7 +51,7 @@ class Order(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     description: str
     weight: Optional[float] = None
-    status: Literal["new", "in_delivery", "delivered"] = Field(default="new")
+    status: OrderStatusEnum = Field(default=OrderStatusEnum.NEW)
     delivery_latitude: float
     delivery_longitude: float
     created_at: datetime = Field(default_factory=datetime.utcnow)
