@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session, select
 from app.database import get_session
-from app.models.models import User
+from app.models.models import User, RoleEnum
 from app.auth.auth_handler import decode_access_token
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
@@ -26,3 +26,12 @@ def get_current_user(
     if user is None:
         raise credentials_exception
     return user
+
+
+def require_manager(current_user: User = Depends(get_current_user)) -> User:
+    if current_user.role != RoleEnum.MANAGER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Доступ только для менеджеров"
+        )
+    return current_user
