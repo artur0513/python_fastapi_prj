@@ -7,9 +7,10 @@ from app.auth.auth_handler import decode_access_token
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
+
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    session: Session = Depends(get_session)
+        token: str = Depends(oauth2_scheme),
+        session: Session = Depends(get_session)
 ) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -33,5 +34,14 @@ def require_manager(current_user: User = Depends(get_current_user)) -> User:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Доступ только для менеджеров"
+        )
+    return current_user
+
+
+def require_courier(current_user: User = Depends(get_current_user)) -> User:
+    if current_user.role != RoleEnum.COURIER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Доступ только для курьеров"
         )
     return current_user
