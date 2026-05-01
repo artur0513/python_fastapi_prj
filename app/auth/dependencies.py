@@ -12,6 +12,7 @@ def get_current_user(
         token: str = Depends(oauth2_scheme),
         session: Session = Depends(get_session)
 ) -> User:
+    """Возвращает текущего пользователя"""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Невалидный токен",
@@ -30,6 +31,7 @@ def get_current_user(
 
 
 def require_manager(current_user: User = Depends(get_current_user)) -> User:
+    """Проверка что пользователь - менеджер"""
     if current_user.role != RoleEnum.MANAGER:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -39,6 +41,7 @@ def require_manager(current_user: User = Depends(get_current_user)) -> User:
 
 
 def require_courier(current_user: User = Depends(get_current_user)) -> User:
+    """Проверка что пользователь - курьер"""
     if current_user.role != RoleEnum.COURIER:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

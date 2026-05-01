@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from app.database import engine
 from sqlmodel import SQLModel
 from app.routers import auth, pickup_points, orders, users, courier
+from app.database import engine
 
 
 @asynccontextmanager
@@ -13,7 +13,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Служба доставки",
-    description="REST-сервис для управления заказами и построения оптимального маршрута для курьеров",
+    description="REST-сервис для управления заказами и построения "
+                "оптимального маршрута для курьеров",
     version="0.1.0",
     lifespan=lifespan,
 )

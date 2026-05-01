@@ -1,5 +1,4 @@
 import math
-from typing import List, Tuple
 from sqlmodel import Session
 
 from app.models.models import Order, User, OrderStatusEnum
@@ -7,13 +6,13 @@ from app.models.models import Order, User, OrderStatusEnum
 
 def haversine(lat1, lon1, lat2, lon2):
     """Вычисляет расстояние в метрах между двумя точками (геодезическая формула)."""
-    R = 6371000  # радиус Земли в метрах
+    r = 6371000  # радиус Земли в метрах
     phi1 = math.radians(lat1)
     phi2 = math.radians(lat2)
     dphi = math.radians(lat2 - lat1)
     dlambda = math.radians(lon2 - lon1)
     a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
-    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return r * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
 def build_route(session: Session, courier_id: int) -> dict:
@@ -55,7 +54,8 @@ def build_route(session: Session, courier_id: int) -> dict:
         # Находим ближайший заказ
         distances = []
         for order in remaining:
-            d = haversine(current_lat, current_lon, order.delivery_latitude, order.delivery_longitude)
+            d = haversine(current_lat, current_lon, order.delivery_latitude,
+                          order.delivery_longitude)
             distances.append((d, order))
         distances.sort(key=lambda x: x[0])
         nearest_dist, nearest_order = distances[0]
