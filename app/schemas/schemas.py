@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from app.models.models import RoleEnum
 from typing import Optional
 from datetime import datetime
@@ -7,8 +7,8 @@ from datetime import datetime
 
 class UserCreate(BaseModel):
     email: EmailStr
-    password: str
-    full_name: str
+    password: str = Field(..., min_length=4, description="Минимум 4 символа")
+    full_name: str = Field(..., min_length=1, max_length=100)
     role: Optional[RoleEnum] = RoleEnum.COURIER  # по умолчанию курьер
 
 
@@ -30,10 +30,10 @@ class TokenResponse(BaseModel):
 
 
 class PickupPointCreate(BaseModel):
-    name: str
-    address: str
-    latitude: float
-    longitude: float
+    name: str = Field(..., min_length=1, max_length=100)
+    address: str = Field(..., min_length=1, max_length=200)
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-180, le=180)
 
 
 class PickupPointUpdate(BaseModel):
@@ -55,10 +55,10 @@ class PickupPointRead(BaseModel):
 
 
 class OrderCreate(BaseModel):
-    description: str
-    weight: Optional[float] = None
-    delivery_latitude: float
-    delivery_longitude: float
+    description: str = Field(..., min_length=1, max_length=500)
+    weight: Optional[float] = Field(None, gt=0)
+    delivery_latitude: float = Field(..., ge=-90, le=90)
+    delivery_longitude: float = Field(..., ge=-180, le=180)
     pickup_point_id: int
     assigned_courier_id: int
 

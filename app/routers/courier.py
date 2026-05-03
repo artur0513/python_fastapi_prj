@@ -14,12 +14,35 @@ def get_route(
     session: Session = Depends(get_session),
     current_user: User = Depends(require_courier)
 ):
-    """Возвращает оптимальный маршрут объезда всех активных заказов курьера."""
+    """Возвращает оптимальный маршрут с шагами (pickup/delivery)."""
     try:
         result = build_route(session, current_user.id)
         return result
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.post("/pickup-order/{order_id}")
+def pickup_order(
+    order_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(require_courier)
+):
+    """Отмечает заказ как забранный (new > in_delivery)."""
+    order = session.get(Order, order_id)
+    if not order:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Заказ не найден")
+    if order.assigned_courier_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Это не ваш заказ")
+    if order.status != OrderStatusEnum.NEW:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Заказ нельзя забрать: он не в статусе 'new'"
+        )
+    order.status = OrderStatusEnum.IN_DELIVERY
+    session.add(order)
+    session.commit()
+    return {"message": f"Заказ {order_id} забран"}
 
 
 @router.post("/complete-order/{order_id}")
